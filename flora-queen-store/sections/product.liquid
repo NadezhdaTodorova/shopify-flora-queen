@@ -1,0 +1,431 @@
+{% comment %}
+  This section is used in the product template to render product page with
+  media, content, and add-to-cart form.
+
+  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
+{% endcomment %}
+
+{% render 'breadcrumbs' %}
+
+<div class="product-gallery">
+  <div class="main-image-container">
+    {% if product.images.size > 0 %}
+      <img
+        id="main-product-image"
+        src="{{ product.images.first | image_url: width: 600 }}"
+        alt="{{ product.images.first.alt | escape }}"
+        class="main-product-image"
+        data-zoom="{{ product.images.first | image_url: width: 1200 }}"
+      />
+      <div class="zoom-overlay" id="zoom-overlay"></div>
+    {% endif %}
+  </div>
+
+  {% if product.images.size > 1 %}
+    <div class="thumbnail-gallery">
+      {% for image in product.images %}
+        <img
+          src="{{ image | image_url: width: 100 }}"
+          alt="{{ image.alt | escape }}"
+          class="thumbnail-image {% if forloop.first %}active{% endif %}"
+          data-main-src="{{ image | image_url: width: 600 }}"
+          data-zoom-src="{{ image | image_url: width: 1200 }}"
+          onclick="changeMainImage(this)"
+        />
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<div class="product-info">
+  <h1>{{ product.title }}</h1>
+  <p>{{ product.price | money }}</p>
+  <p>{{ product.description }}</p>
+</div>
+
+<div class="product-form">
+  {% form 'product', product %}
+    {% assign current_variant = product.selected_or_first_available_variant %}
+
+    <select name="id">
+      {% for variant in product.variants %}
+        <option
+          value="{{ variant.id }}"
+          {% if variant == current_variant %}
+            selected="selected"
+          {% endif %}
+        >
+          {{ variant.title }} - {{ variant.price | money }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <input type="text" name="quantity" min="1" value="1">
+
+    <input type="submit" value="{{ 'products.add_to_cart' | t | default: 'Add to cart' }}">
+    {{ form | payment_button }}
+  {% endform %}
+</div>
+
+<div class="product-details-accordion">
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h3>{{ 'products.details' | t | default: 'Product Details' }}</h3>
+      <span class="accordion-icon">+</span>
+    </div>
+    <div class="accordion-content">
+      <div class="accordion-body">
+        {% if product.description != blank %}
+          {{ product.description }}
+        {% else %}
+          <p>Beautiful flora product crafted with care. Perfect for any occasion.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h3>{{ 'products.care_instructions' | t | default: 'Care Instructions' }}</h3>
+      <span class="accordion-icon">+</span>
+    </div>
+    <div class="accordion-content">
+      <div class="accordion-body">
+        <ul>
+          <li>Keep in a cool, dry place</li>
+          <li>Water regularly but avoid overwatering</li>
+          <li>Provide adequate sunlight</li>
+          <li>Trim wilted parts to maintain freshness</li>
+          <li>Use flower food if provided</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h3>{{ 'products.delivery_info' | t | default: 'Delivery Information' }}</h3>
+      <span class="accordion-icon">+</span>
+    </div>
+    <div class="accordion-content">
+      <div class="accordion-body">
+        <p><strong>Delivery Time:</strong> 1-3 business days</p>
+        <p><strong>Free Shipping:</strong> On orders over $50</p>
+        <p><strong>Same Day Delivery:</strong> Available in select areas</p>
+        <p><strong>Care Package:</strong> Each order includes care instructions</p>
+      </div>
+    </div>
+  </div>
+
+  {% if product.metafields.custom.specifications != blank %}
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h3>{{ 'products.specifications' | t | default: 'Specifications' }}</h3>
+      <span class="accordion-icon">+</span>
+    </div>
+    <div class="accordion-content">
+      <div class="accordion-body">
+        {{ product.metafields.custom.specifications }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .product-gallery {
+    max-width: 500px;
+    margin: 2rem auto;
+  }
+
+  .main-image-container {
+    position: relative;
+    margin-bottom: 1rem;
+    cursor: zoom-in;
+  }
+
+  .main-product-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(46, 93, 62, 0.15);
+    transition: transform 0.3s ease;
+  }
+
+  .main-product-image:hover {
+    transform: scale(1.02);
+  }
+
+  .zoom-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 200%;
+    background-repeat: no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    border-radius: 12px;
+    transition: opacity 0.3s ease;
+  }
+
+  .zoom-overlay.active {
+    opacity: 1;
+    cursor: zoom-out;
+  }
+
+  .thumbnail-gallery {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .thumbnail-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0.6;
+    border: 2px solid transparent;
+    transition: opacity 0.3s ease, border-color 0.3s ease;
+  }
+
+  .thumbnail-image:hover {
+    opacity: 0.8;
+  }
+
+  .thumbnail-image.active {
+    opacity: 1;
+    border-color: #E91E63;
+  }
+
+  .product-info {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .product-info h1 {
+    font-size: 2rem;
+    color: var(--color-foreground);
+    margin-bottom: 1rem;
+  }
+
+  .product-info p:nth-of-type(1) {
+    font-size: 1.5rem;
+    color: #E91E63;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .product-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .product-form select,
+  .product-form input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(46, 93, 62, 0.3);
+    border-radius: 6px;
+  }
+
+  .product-form input[type="submit"] {
+    background: #E91E63;
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .product-form input[type="submit"]:hover {
+    background: #C2185B;
+  }
+
+  .product-details-accordion {
+    max-width: 600px;
+    margin: 3rem auto 2rem;
+    padding: 0 1rem;
+  }
+
+  .accordion-item {
+    border: 1px solid rgba(46, 93, 62, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 4px rgba(46, 93, 62, 0.05);
+  }
+
+  .accordion-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #FFF8F5 0%, #F8F3F0 100%);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.3s ease;
+    border-bottom: 1px solid rgba(46, 93, 62, 0.1);
+  }
+
+  .accordion-header:hover {
+    background: linear-gradient(135deg, #F8F3F0 0%, #F0EBE6 100%);
+  }
+
+  .accordion-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+
+  .accordion-icon {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #E91E63;
+    transition: transform 0.3s ease;
+  }
+
+  .accordion-header.active .accordion-icon {
+    transform: rotate(45deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .accordion-content.active {
+    max-height: 500px;
+  }
+
+  .accordion-body {
+    padding: 1.5rem;
+    color: rgba(46, 93, 62, 0.8);
+    line-height: 1.6;
+  }
+
+  .accordion-body ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .accordion-body li {
+    margin-bottom: 0.5rem;
+  }
+
+  .accordion-body p {
+    margin-bottom: 0.8rem;
+  }
+
+  .accordion-body strong {
+    color: var(--color-foreground);
+  }
+{% endstylesheet %}
+
+<script>
+  // Accordion functionality
+  function toggleAccordion(header) {
+    const content = header.nextElementSibling;
+    const isActive = header.classList.contains('active');
+
+    // Close all accordions
+    document.querySelectorAll('.accordion-header').forEach(h => {
+      h.classList.remove('active');
+      h.nextElementSibling.classList.remove('active');
+    });
+
+    // If this accordion wasn't active, open it
+    if (!isActive) {
+      header.classList.add('active');
+      content.classList.add('active');
+    }
+  }
+
+  // Change main image when thumbnail is clicked
+  function changeMainImage(thumbnail) {
+    const mainImage = document.getElementById('main-product-image');
+    const zoomOverlay = document.getElementById('zoom-overlay');
+
+    // Update main image
+    mainImage.src = thumbnail.dataset.mainSrc;
+    mainImage.dataset.zoom = thumbnail.dataset.zoomSrc;
+
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail-image').forEach(thumb => {
+      thumb.classList.remove('active');
+    });
+    thumbnail.classList.add('active');
+
+    // Reset zoom
+    zoomOverlay.classList.remove('active');
+  }
+
+  // Zoom functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const mainImage = document.getElementById('main-product-image');
+    const zoomOverlay = document.getElementById('zoom-overlay');
+
+    if (!mainImage || !zoomOverlay) return;
+
+    let isZoomed = false;
+
+    mainImage.addEventListener('click', function() {
+      if (!isZoomed) {
+        // Enable zoom
+        const zoomSrc = this.dataset.zoom;
+        zoomOverlay.style.backgroundImage = `url(${zoomSrc})`;
+        zoomOverlay.classList.add('active');
+        isZoomed = true;
+
+        // Change cursor
+        mainImage.style.cursor = 'zoom-out';
+      } else {
+        // Disable zoom
+        zoomOverlay.classList.remove('active');
+        isZoomed = false;
+        mainImage.style.cursor = 'zoom-in';
+      }
+    });
+
+    // Mouse movement for zoom positioning
+    mainImage.addEventListener('mousemove', function(e) {
+      if (isZoomed) {
+        const rect = this.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+        zoomOverlay.style.backgroundPosition = `${x}% ${y}%`;
+      }
+    });
+
+    // Reset zoom when mouse leaves
+    mainImage.addEventListener('mouseleave', function() {
+      if (isZoomed) {
+        zoomOverlay.classList.remove('active');
+        isZoomed = false;
+        this.style.cursor = 'zoom-in';
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:general.product",
+  "settings": [],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

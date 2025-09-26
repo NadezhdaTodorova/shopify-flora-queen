@@ -1,0 +1,123 @@
+{% comment %}
+  Simple Flora Queen homepage hero section
+{% endcomment %}
+
+<div class="homepage-hero">
+  <div class="hero-content">
+    <h1 class="hero-title">{{ section.settings.hero_title | default: "Welcome to Flora Queen" }}</h1>
+    <p class="hero-subtitle">{{ section.settings.hero_subtitle | default: "Beautiful flowers and plants for every occasion" }}</p>
+
+    {% if section.settings.show_cta %}
+      <a href="{{ section.settings.cta_link | default: '/collections/all' }}" class="hero-cta">
+        {{ section.settings.cta_text | default: "Shop Now" }}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .homepage-hero {
+    background: linear-gradient(135deg, #FFF8F5 0%, #F8F3F0 100%);
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    color: var(--color-foreground);
+    margin-bottom: 1rem;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    color: rgba(46, 93, 62, 0.8);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    background: #E91E63;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .hero-cta:hover {
+    background: #C2185B;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .homepage-hero {
+      padding: 2rem 1rem;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+
+    .hero-cta {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Homepage Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "Welcome to Flora Queen"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subtitle",
+      "label": "Hero Subtitle",
+      "default": "Beautiful flowers and plants for every occasion"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show Call to Action Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Button Link",
+      "default": "/collections/all"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Homepage Hero"
+    }
+  ]
+}
+{% endschema %}

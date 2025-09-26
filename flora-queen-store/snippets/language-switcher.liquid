@@ -1,0 +1,158 @@
+{% comment %}
+  Language switcher for Flora Queen store
+  Shows available locales with current language highlighted
+{% endcomment %}
+
+{% stylesheet %}
+  .language-switcher {
+    position: relative;
+    display: inline-block;
+  }
+
+  .language-dropdown {
+    position: relative;
+  }
+
+  .language-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1px solid rgba(46, 93, 62, 0.3);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-foreground);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .language-toggle:hover {
+    border-color: #E91E63;
+    background: rgba(233, 30, 99, 0.05);
+  }
+
+  .current-language {
+    font-weight: 500;
+  }
+
+  .dropdown-arrow {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+  }
+
+  .language-toggle.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .language-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid rgba(46, 93, 62, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(46, 93, 62, 0.15);
+    z-index: 1000;
+    min-width: 120px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  }
+
+  .language-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .language-option {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: background 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .language-option:hover {
+    background: rgba(233, 30, 99, 0.1);
+    color: #E91E63;
+  }
+
+  .language-option:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  .language-option:last-child {
+    border-radius: 0 0 6px 6px;
+  }
+
+  @media (max-width: 768px) {
+    .language-toggle {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .language-menu {
+      right: 0;
+      left: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% if localization.available_languages.size > 1 %}
+<div class="language-switcher">
+  <div class="language-dropdown">
+    <button class="language-toggle" onclick="toggleLanguageMenu()">
+      <span class="current-language">{{ localization.language.endonym_name }}</span>
+      <span class="dropdown-arrow">▼</span>
+    </button>
+
+    <div class="language-menu" id="language-menu">
+      {% for language in localization.available_languages %}
+        {% if language.iso_code != localization.language.iso_code %}
+          <a href="#"
+             class="language-option"
+             onclick="switchLanguage('{{ language.iso_code }}')">
+            {{ language.endonym_name }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% form 'localization' %}
+  <input type="hidden" name="locale_code" id="locale-input" value="{{ localization.language.iso_code }}">
+{% endform %}
+
+{% endif %}
+
+<script>
+  function toggleLanguageMenu() {
+    const menu = document.getElementById('language-menu');
+    const toggle = document.querySelector('.language-toggle');
+
+    menu.classList.toggle('active');
+    toggle.classList.toggle('active');
+  }
+
+  function switchLanguage(localeCode) {
+    document.getElementById('locale-input').value = localeCode;
+    document.querySelector('form[action*="localization"]').submit();
+  }
+
+  // Close menu when clicking outside
+  document.addEventListener('click', function(event) {
+    const switcher = document.querySelector('.language-switcher');
+    const menu = document.getElementById('language-menu');
+    const toggle = document.querySelector('.language-toggle');
+
+    if (switcher && !switcher.contains(event.target)) {
+      menu.classList.remove('active');
+      toggle.classList.remove('active');
+    }
+  });
+</script>

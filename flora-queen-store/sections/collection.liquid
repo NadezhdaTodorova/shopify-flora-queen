@@ -1,0 +1,439 @@
+{% comment %}
+  This section is used in the collection template to render collection page
+  listing all products within a collection.
+
+  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
+{% endcomment %}
+
+{% render 'breadcrumbs' %}
+
+<div class="collection-header">
+  <h1 class="collection-title">{{ collection.title }}</h1>
+  {% if collection.description != blank %}
+    <div class="collection-description">
+      {{ collection.description }}
+    </div>
+  {% endif %}
+</div>
+
+<div class="collection-filters">
+  <div class="filters-container">
+    <div class="filters-row">
+      <div class="filter-group">
+        <h4>{{ 'collections.price_filter' | t | default: 'Price Range' }}:</h4>
+        <div class="price-filters">
+          <label>
+            <input type="radio" name="price-filter" value="all" checked>
+            {{ 'collections.all_prices' | t | default: 'All Prices' }}
+          </label>
+          <label>
+            <input type="radio" name="price-filter" value="under-100">
+            {{ 'collections.under_100' | t | default: 'Under $100' }}
+          </label>
+          <label>
+            <input type="radio" name="price-filter" value="over-100">
+            {{ 'collections.over_100' | t | default: 'Over $100' }}
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>{{ 'collections.availability_filter' | t | default: 'Availability' }}:</h4>
+        <div class="availability-filters">
+          <label>
+            <input type="checkbox" name="availability-filter" value="in-stock" checked>
+            {{ 'collections.in_stock' | t | default: 'In Stock' }}
+          </label>
+          <label>
+            <input type="checkbox" name="availability-filter" value="out-of-stock">
+            {{ 'collections.out_of_stock' | t | default: 'Out of Stock' }}
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="clear-filters-btn" onclick="clearAllFilters()">
+          {{ 'collections.clear_filters' | t | default: 'Clear Filters' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="collection-products">
+  {% paginate collection.products by 12 %}
+    {% for product in collection.products %}
+      <div class="collection-product"
+           data-price="{{ product.price | money_without_currency | remove: ',' | remove: ' ' }}"
+           data-available="{{ product.available }}">
+        {% if product.featured_image %}
+          <a href="{{ product.url }}" class="product-image-link">
+            <img
+              src="{{ product.featured_image | image_url: width: 300 }}"
+              alt="{{ product.featured_image.alt | escape }}"
+              class="collection-product__image"
+              loading="lazy"
+            />
+          </a>
+        {% endif %}
+        <div class="collection-product__content">
+          <h3 class="product-title">
+            <a href="{{ product.url }}">{{ product.title | escape }}</a>
+          </h3>
+          <p class="product-price">{{ product.price | money }}</p>
+          {% if product.compare_at_price > product.price %}
+            <p class="product-compare-price">{{ product.compare_at_price | money }}</p>
+          {% endif %}
+          {% if product.available %}
+            {% form 'product', product, class: 'add-to-cart-form' %}
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="add-to-cart-btn" {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+                {{ 'products.add_to_cart' | t | default: 'Add to Cart' }}
+              </button>
+            {% endform %}
+          {% else %}
+            <button class="add-to-cart-btn" disabled>
+              {{ 'products.sold_out' | t | default: 'Sold Out' }}
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-collection">
+        <h3>{{ 'collections.no_products' | t | default: 'No products found' }}</h3>
+        <p>{{ 'collections.empty_description' | t | default: "This collection doesn't contain any products yet." }}</p>
+      </div>
+    {% endfor %}
+
+    {{ paginate | default_pagination }}
+  {% endpaginate %}
+</div>
+
+{% stylesheet %}
+  .collection-header {
+    text-align: center;
+    margin: 2rem 0 3rem;
+    padding: 0 2rem;
+  }
+
+  .collection-title {
+    font-size: 2.5rem;
+    color: var(--color-foreground);
+    margin-bottom: 1rem;
+    font-weight: 300;
+  }
+
+  .collection-description {
+    font-size: 1.1rem;
+    color: rgba(46, 93, 62, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .collection-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+    gap: 0.8rem;
+    padding: 0 2rem;
+  }
+
+  .collection-product {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(46, 93, 62, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(46, 93, 62, 0.1);
+  }
+
+  .collection-product:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(46, 93, 62, 0.15);
+  }
+
+  .collection-product__image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-image-link:hover .collection-product__image {
+    transform: scale(1.05);
+  }
+
+  .collection-product__content {
+    padding: 1rem;
+  }
+
+  .product-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .product-title a {
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .product-title a:hover {
+    color: #E91E63;
+  }
+
+  .product-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #E91E63;
+    margin: 0.5rem 0;
+  }
+
+  .product-compare-price {
+    font-size: 0.9rem;
+    color: #999;
+    text-decoration: line-through;
+    margin: 0;
+  }
+
+  .add-to-cart-btn {
+    background: #E91E63;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .add-to-cart-btn:hover:not(:disabled) {
+    background: #C2185B;
+  }
+
+  .add-to-cart-form {
+    width: 100%;
+  }
+
+  .add-to-cart-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+  }
+
+  .add-to-cart-btn:disabled:hover {
+    background: #ccc;
+    transform: none;
+  }
+
+  .empty-collection {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: rgba(46, 93, 62, 0.6);
+  }
+
+  .empty-collection h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  .collection-filters {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+  }
+
+  .filters-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(46, 93, 62, 0.1);
+    border: 1px solid rgba(46, 93, 62, 0.1);
+  }
+
+  .filters-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .filter-group h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-foreground);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .price-filters,
+  .availability-filters {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .price-filters label,
+  .availability-filters label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid rgba(46, 93, 62, 0.2);
+    background: rgba(255, 248, 245, 0.5);
+    transition: background 0.3s ease, border-color 0.3s ease;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .price-filters label:hover,
+  .availability-filters label:hover {
+    background: rgba(233, 30, 99, 0.1);
+    border-color: #E91E63;
+  }
+
+  .price-filters input[type="radio"]:checked + label,
+  .availability-filters input[type="checkbox"]:checked + label {
+    background: rgba(233, 30, 99, 0.1);
+    border-color: #E91E63;
+    color: #E91E63;
+    font-weight: 500;
+  }
+
+  .clear-filters-btn {
+    background: rgba(46, 93, 62, 0.1);
+    color: var(--color-foreground);
+    border: 1px solid rgba(46, 93, 62, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .clear-filters-btn:hover {
+    background: rgba(233, 30, 99, 0.1);
+    border-color: #E91E63;
+    color: #E91E63;
+  }
+
+  .collection-product.hidden {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .collection-filters {
+      padding: 0 1rem;
+    }
+
+    .filters-container {
+      padding: 1rem;
+    }
+
+    .filters-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .filter-group {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  // Collection Filters Functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const priceFilters = document.querySelectorAll('input[name="price-filter"]');
+    const availabilityFilters = document.querySelectorAll('input[name="availability-filter"]');
+    const products = document.querySelectorAll('.collection-product');
+
+    // Add event listeners to all filters
+    priceFilters.forEach(filter => {
+      filter.addEventListener('change', applyFilters);
+    });
+
+    availabilityFilters.forEach(filter => {
+      filter.addEventListener('change', applyFilters);
+    });
+
+    function applyFilters() {
+      const selectedPriceRange = document.querySelector('input[name="price-filter"]:checked').value;
+      const selectedAvailability = Array.from(document.querySelectorAll('input[name="availability-filter"]:checked')).map(cb => cb.value);
+
+      products.forEach(product => {
+        let showProduct = true;
+
+        // Price filter
+        if (selectedPriceRange !== 'all') {
+          const productPrice = parseFloat(product.dataset.price);
+          showProduct = checkPriceRange(productPrice, selectedPriceRange);
+        }
+
+        // Availability filter
+        if (showProduct && selectedAvailability.length > 0) {
+          const isAvailable = product.dataset.available === 'true';
+          const showInStock = selectedAvailability.includes('in-stock') && isAvailable;
+          const showOutOfStock = selectedAvailability.includes('out-of-stock') && !isAvailable;
+          showProduct = showInStock || showOutOfStock;
+        }
+
+        // Show/hide product
+        if (showProduct) {
+          product.classList.remove('hidden');
+        } else {
+          product.classList.add('hidden');
+        }
+      });
+    }
+
+    function checkPriceRange(price, range) {
+      switch (range) {
+        case 'under-100':
+          return price < 100;
+        case 'over-100':
+          return price >= 100;
+        default:
+          return true;
+      }
+    }
+  });
+
+  // Clear all filters function
+  function clearAllFilters() {
+    // Reset price filters
+    document.querySelector('input[name="price-filter"][value="all"]').checked = true;
+
+    // Reset availability filters
+    document.querySelectorAll('input[name="availability-filter"]').forEach(cb => {
+      cb.checked = cb.value === 'in-stock'; // Only keep "in-stock" checked
+    });
+
+    // Show all products
+    document.querySelectorAll('.collection-product').forEach(product => {
+      product.classList.remove('hidden');
+    });
+  }
+</script>
+
+{% schema %}
+{
+  "name": "t:general.collection",
+  "settings": []
+}
+{% endschema %}

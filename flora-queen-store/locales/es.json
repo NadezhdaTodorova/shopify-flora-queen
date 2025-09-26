@@ -1,0 +1,76 @@
+{
+  "404": {
+    "title": "404",
+    "not_found": "Página no encontrada.",
+    "back_to_shopping": "Volver a comprar"
+  },
+  "blog": {
+    "article_comments": "Comentarios",
+    "article_metadata_html": "{{ date }} por {{ author }}",
+    "comment_form_body": "Comentario",
+    "comment_form_email": "Correo electrónico",
+    "comment_form_name": "Nombre",
+    "comment_form_submit": "Publicar",
+    "comment_form_title": "Agregar un comentario"
+  },
+  "cart": {
+    "checkout": "Finalizar compra",
+    "title": "Carrito",
+    "update": "Actualizar",
+    "remove": "Eliminar",
+    "total": "Total",
+    "quantity": "Cantidad",
+    "empty": "Tu carrito está vacío",
+    "continue_shopping": "Continúa comprando para agregar artículos a tu carrito.",
+    "continue_browsing": "Seguir Comprando"
+  },
+  "customers": {
+    "login": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "title": "Iniciar sesión"
+    }
+  },
+  "collections": {
+    "title": "Colecciones",
+    "no_products": "No se encontraron productos",
+    "empty_description": "Esta colección no contiene productos todavía.",
+    "filters_title": "Filtrar Productos",
+    "price_filter": "Rango de Precio",
+    "all_prices": "Todos los Precios",
+    "under_100": "Menos de $100",
+    "over_100": "Más de $100",
+    "availability_filter": "Disponibilidad",
+    "in_stock": "En Stock",
+    "out_of_stock": "Agotado",
+    "clear_filters": "Limpiar Filtros"
+  },
+  "gift_card": {
+    "add_to_apple_wallet": "Agregar a Apple Wallet",
+    "card": "Tarjeta de regalo",
+    "expired": "Esta tarjeta de regalo ha caducado",
+    "expires_on": "Caduca el {{ expires_on }}",
+    "use_at_checkout": "Usa esta tarjeta de regalo al finalizar la compra"
+  },
+  "password": {
+    "title": "Esta tienda es privada",
+    "password": "Contraseña",
+    "enter": "Entrar"
+  },
+  "search": {
+    "title": "Buscar",
+    "placeholder": "Buscar artículos, páginas o productos",
+    "submit": "Buscar",
+    "no_results_html": "No se encontraron resultados para {{ terms }}",
+    "results_for_html": "{{ count }} resultados encontrados para {{ terms }}"
+  },
+  "products": {
+    "add_to_cart": "Agregar al Carrito",
+    "sold_out": "Agotado",
+    "details": "Detalles del Producto",
+    "care_instructions": "Instrucciones de Cuidado",
+    "delivery_info": "Información de Entrega",
+    "specifications": "Especificaciones"
+  }
+}
