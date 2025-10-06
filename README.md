@@ -41,3 +41,5 @@ Create the hero and navigation as dynamic sections with schema settings:
 {{ product.selected_variant.inventory_quantity }}  // Inventory
 {{ product.metafields.custom.field }}    // Custom metafields
 ```
+
+The other technical questions are part of the folder dynamic-pricing-app
