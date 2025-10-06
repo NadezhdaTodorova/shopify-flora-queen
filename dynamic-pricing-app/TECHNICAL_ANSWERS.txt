@@ -1,0 +1,188 @@
+TECHNICAL QUESTIONS - ANSWERS
+
+=== ARCHITECTURE AND DATABASE ===
+
+Q1. Data Design in Shopify
+
+Where to store price configuration by country and size?
+I would use a combination approach - Shopify metafields for basic product data that needs to be accessed frequently, and an external PostgreSQL database for complex pricing rules and historical data. The metafields would act as a cache layer while the database holds the source of truth.
+
+How to model relationships?
+Products -> Countries (many-to-many with price data)
+Countries -> Warehouses (one-to-many)
+Products -> Sizes -> Prices (one-to-many-to-many)
+
+Each product would have a JSON structure like:
+product_123 -> {
+  country_ES: {
+    small: {local_warehouse: 49.90, central: 54.90},
+    large: {local_warehouse: 69.90, central: 74.90}
+  },
+  country_FR: {
+    small: {central: 59.90}
+  }
+}
+
+Required metafields:
+- product.metafields.pricing.country_config (type: json)
+- product.metafields.pricing.warehouse_availability (type: json)
+- product.metafields.pricing.size_matrix (type: json)
+
+
+Q2. IP Multiplier Management
+
+For IP detection I'd use the x-forwarded-for header from the request combined with a geolocation service like IPinfo.io or MaxMind. Would implement a 1-hour cache to avoid hitting API limits.
+
+Multiplier rules would be stored in the app's database with a structure like:
+country_code | multiplier_type | value | rounding_rule | priority
+
+I'd choose Shopify Functions for simple price modifications at checkout because they run natively without external calls. But for the complex IP detection and warehouse logic, an App Proxy makes more sense since we need external services.
+
+
+=== BACKEND IMPLEMENTATION ===
+
+Q3. Real-Time Price Calculation
+
+The flow would be:
+1. Customer loads product page
+2. JavaScript makes async call to /api/calculate-price
+3. Backend gets customer IP and delivery country
+4. Queries pricing rules from cache/database
+5. Applies base price, then warehouse adjustment, then IP multiplier
+6. Returns final price
+7. Frontend updates price display without page reload
+
+To maintain performance, I'd implement a multi-layer cache - Redis for hot data (5 min), database query cache (1 hour), and CDN cache for static rules.
+
+
+Q4. Shopify Functions vs Custom App
+
+Shopify Functions pros:
+- Runs at checkout natively
+- No external hosting needed
+- Faster execution
+- Better security
+
+Shopify Functions cons:
+- 5ms execution limit
+- Can't call external APIs
+- Limited logic complexity
+
+Custom App pros:
+- Complete control
+- Complex calculations possible
+- External service integration
+- Better debugging
+
+Custom App cons:
+- Requires hosting
+- Higher latency
+- More maintenance
+
+My recommendation: Use both. Shopify Functions for the final checkout price modification (since it needs to be fast and secure), and a Custom App for the complex IP detection and warehouse selection logic.
+
+
+Q5. Checkout Integration
+
+To ensure correct prices at checkout:
+- Server calculates price when item added to cart
+- Store calculation details in cart attributes
+- Shopify Function validates price at checkout
+- If mismatch detected, recalculate or block checkout
+
+APIs needed:
+- Storefront API for product display prices
+- Admin API for metafield management
+- Cart AJAX API for dynamic updates
+- Checkout API for final validation
+
+For security, never trust client-side prices. Always recalculate server-side using signed tokens to verify the calculation parameters haven't been tampered with.
+
+
+=== OPTIMIZATION AND SCALABILITY ===
+
+Q6. Performance & Caching
+
+Caching layers:
+1. Browser (session storage) - user preferences
+2. CDN (CloudFlare) - IP geolocation results
+3. Redis - calculated prices and active rules
+4. Database - query result cache
+
+To minimize geolocation calls:
+- Cache IP-to-country mapping for 1 hour
+- Use CloudFlare's free IP geolocation header
+- Batch process common IP ranges
+
+For edge computing, CloudFlare Workers could handle IP detection and basic multiplier logic, reducing main server load.
+
+
+Q7. Business Rules Management
+
+The admin interface would include:
+
+Main dashboard:
+- Overview of active pricing rules
+- Quick stats (countries configured, products with custom pricing)
+
+Price configuration:
+- Table view with inline editing
+- Bulk upload via CSV
+- Visual price matrix editor
+
+Multiplier rules:
+- Simple form: Country -> Type (% or fixed) -> Value -> Rounding
+- Test mode to preview changes
+- Rule priority management
+
+Audit features:
+- Change history log
+- Rollback capability
+- Export configurations
+
+I'd build this as a React app embedded in Shopify admin using App Bridge for native feel.
+
+
+=== TESTING & EDGE CASES ===
+
+Q8. Edge Cases
+
+VPN/IP mismatch:
+Priority order would be: Delivery address > Billing address > IP location. Display a notice like "Prices shown for delivery to [Country]"
+
+Missing price configuration:
+Fall back to base price and log the gap. Send daily report to admin about missing configurations.
+
+Multiple multipliers:
+Apply in sequence with a maximum cap. Order: Base price -> Country modifier -> IP multiplier -> Promotional discounts. Never allow total adjustment over 50%.
+
+Country change mid-session:
+Trigger price recalculation via AJAX, update cart, show notification banner explaining price change.
+
+
+Q9. Testing Strategy
+
+Unit tests:
+- Price calculation logic
+- Multiplier application
+- Rounding functions
+
+Integration tests:
+- API endpoints
+- Database operations
+- Cache invalidation
+
+E2E tests:
+- Complete purchase flow
+- Country switching
+- Price display accuracy
+
+Load testing:
+- Simulate Black Friday traffic
+- Test cache performance
+- Database connection pooling
+
+Testing approach:
+Use Shopify development store with test data. Implement feature flags to test in production safely. Shadow mode where calculations run but don't apply, comparing results with current system.
+
+Tools: Jest for unit tests, Cypress for E2E, K6 for load testing, Datadog for monitoring.

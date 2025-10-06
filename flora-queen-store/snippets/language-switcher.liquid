@@ -1,6 +1,6 @@
 {% comment %}
-  Language switcher for Flora Queen store
-  Shows available locales with current language highlighted
+  Language/Currency switcher for Flora Queen store
+  Shows GB (£) with dropdown for other regions
 {% endcomment %}
 
 {% stylesheet %}
@@ -9,35 +9,28 @@
     display: inline-block;
   }
 
-  .language-dropdown {
-    position: relative;
-  }
-
   .language-toggle {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    background: transparent;
-    border: 1px solid rgba(46, 93, 62, 0.3);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    color: var(--color-foreground);
+    gap: 5px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: border-color 0.3s ease, background 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .language-toggle:hover {
-    border-color: #E91E63;
-    background: rgba(233, 30, 99, 0.05);
-  }
-
-  .current-language {
-    font-weight: 500;
+    border-color: #7C4DFF;
+    color: #7C4DFF;
   }
 
   .dropdown-arrow {
-    font-size: 0.7rem;
+    display: inline-block;
     transition: transform 0.3s ease;
   }
 
@@ -45,20 +38,26 @@
     transform: rotate(180deg);
   }
 
+  .dropdown-arrow svg {
+    width: 12px;
+    height: 12px;
+  }
+
   .language-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px);
     right: 0;
     background: white;
-    border: 1px solid rgba(46, 93, 62, 0.2);
-    border-radius: 6px;
-    box-shadow: 0 4px 15px rgba(46, 93, 62, 0.15);
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    min-width: 120px;
+    min-width: 140px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
     transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    margin-top: 5px;
   }
 
   .language-menu.active {
@@ -69,65 +68,70 @@
 
   .language-option {
     display: block;
-    padding: 0.75rem 1rem;
-    color: var(--color-foreground);
+    padding: 10px 15px;
+    color: #333;
     text-decoration: none;
-    transition: background 0.3s ease;
-    font-size: 0.9rem;
+    transition: background 0.3s ease, color 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   .language-option:hover {
-    background: rgba(233, 30, 99, 0.1);
-    color: #E91E63;
+    background: #f5f5f5;
+    color: #7C4DFF;
   }
 
   .language-option:first-child {
-    border-radius: 6px 6px 0 0;
+    border-radius: 8px 8px 0 0;
   }
 
   .language-option:last-child {
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 8px 8px;
   }
 
   @media (max-width: 768px) {
     .language-toggle {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.8rem;
+      padding: 6px 10px;
+      font-size: 12px;
     }
 
-    .language-menu {
-      right: 0;
-      left: auto;
+    .dropdown-arrow svg {
+      width: 10px;
+      height: 10px;
     }
   }
 {% endstylesheet %}
 
-{% if localization.available_languages.size > 1 %}
 <div class="language-switcher">
-  <div class="language-dropdown">
-    <button class="language-toggle" onclick="toggleLanguageMenu()">
-      <span class="current-language">{{ localization.language.endonym_name }}</span>
-      <span class="dropdown-arrow">▼</span>
-    </button>
+  <button class="language-toggle" onclick="toggleLanguageMenu()" aria-label="Select currency and region">
+    <span class="current-language">GB (£)</span>
+    <span class="dropdown-arrow">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </button>
 
-    <div class="language-menu" id="language-menu">
-      {% for language in localization.available_languages %}
-        {% if language.iso_code != localization.language.iso_code %}
-          <a href="#"
-             class="language-option"
-             onclick="switchLanguage('{{ language.iso_code }}')">
-            {{ language.endonym_name }}
-          </a>
-        {% endif %}
-      {% endfor %}
-    </div>
+  <div class="language-menu" id="language-menu">
+    <a href="#" class="language-option" onclick="switchRegion('gb')">
+      GB (£)
+    </a>
+    <a href="#" class="language-option" onclick="switchRegion('us')">
+      US ($)
+    </a>
+    <a href="#" class="language-option" onclick="switchRegion('eu')">
+      EU (€)
+    </a>
+    <a href="#" class="language-option" onclick="switchRegion('au')">
+      AU ($)
+    </a>
   </div>
 </div>
 
-{% form 'localization' %}
-  <input type="hidden" name="locale_code" id="locale-input" value="{{ localization.language.iso_code }}">
-{% endform %}
-
+{% if localization.available_languages.size > 1 %}
+  {% form 'localization' %}
+    <input type="hidden" name="locale_code" id="locale-input" value="{{ localization.language.iso_code }}">
+  {% endform %}
 {% endif %}
 
 <script>
@@ -139,9 +143,41 @@
     toggle.classList.toggle('active');
   }
 
-  function switchLanguage(localeCode) {
-    document.getElementById('locale-input').value = localeCode;
-    document.querySelector('form[action*="localization"]').submit();
+  function switchRegion(region) {
+    // Handle region/currency switching
+    // This would typically update the store's currency and region settings
+    console.log('Switching to region:', region);
+
+    // Update the button text based on region
+    const buttonText = {
+      'gb': 'GB (£)',
+      'us': 'US ($)',
+      'eu': 'EU (€)',
+      'au': 'AU ($)'
+    };
+
+    document.querySelector('.current-language').textContent = buttonText[region];
+
+    // Close the dropdown
+    document.getElementById('language-menu').classList.remove('active');
+    document.querySelector('.language-toggle').classList.remove('active');
+
+    // If using Shopify's localization form
+    if (document.querySelector('form[action*="localization"]')) {
+      // Map region to locale codes if needed
+      const localeMap = {
+        'gb': 'en-GB',
+        'us': 'en-US',
+        'eu': 'en-EU',
+        'au': 'en-AU'
+      };
+
+      const localeInput = document.getElementById('locale-input');
+      if (localeInput && localeMap[region]) {
+        localeInput.value = localeMap[region];
+        document.querySelector('form[action*="localization"]').submit();
+      }
+    }
   }
 
   // Close menu when clicking outside
@@ -151,8 +187,8 @@
     const toggle = document.querySelector('.language-toggle');
 
     if (switcher && !switcher.contains(event.target)) {
-      menu.classList.remove('active');
-      toggle.classList.remove('active');
+      if (menu) menu.classList.remove('active');
+      if (toggle) toggle.classList.remove('active');
     }
   });
 </script>

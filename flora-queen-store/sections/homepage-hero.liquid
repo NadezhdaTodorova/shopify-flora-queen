@@ -1,80 +1,200 @@
 {% comment %}
-  Simple Flora Queen homepage hero section
+  Flora Queen homepage hero section with split layout
 {% endcomment %}
 
 <div class="homepage-hero">
-  <div class="hero-content">
-    <h1 class="hero-title">{{ section.settings.hero_title | default: "Welcome to Flora Queen" }}</h1>
-    <p class="hero-subtitle">{{ section.settings.hero_subtitle | default: "Beautiful flowers and plants for every occasion" }}</p>
+  <div class="hero-container">
+    <!-- Left Side Content -->
+    <div class="hero-content">
+      <h1 class="hero-title">Celebrate summer birthdays!</h1>
+      <p class="hero-subtitle">Send joy even on vacation. Our gift delivery makes people smile more easily</p>
 
-    {% if section.settings.show_cta %}
-      <a href="{{ section.settings.cta_link | default: '/collections/all' }}" class="hero-cta">
-        {{ section.settings.cta_text | default: "Shop Now" }}
-      </a>
-    {% endif %}
+      <div class="hero-buttons">
+        <a href="{{ routes.collections_url }}" class="hero-cta hero-cta-primary">Discover Gifts!</a>
+        <button class="hero-cta hero-cta-secondary">Save An Event</button>
+      </div>
+    </div>
+
+    <!-- Right Side Image -->
+    <div class="hero-image">
+      <img src="{{ 'BANNER HERMOSO 1.png' | asset_url }}" alt="Summer flowers" loading="eager" width="820" height="500">
+    </div>
   </div>
 </div>
 
 {% stylesheet %}
   .homepage-hero {
-    background: linear-gradient(135deg, #FFF8F5 0%, #F8F3F0 100%);
-    padding: 4rem 2rem;
+    width: 100%;
+    background: #FCC3B6;
+    overflow: hidden;
+  }
+
+  .hero-container {
+    display: flex;
+    align-items: stretch;
+    min-height: 500px;
+    max-width: 100%;
+  }
+
+  /* Left Side Content */
+  .hero-content {
+    width: 50%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+    background: #FCC3B6;
     text-align: center;
   }
 
-  .hero-content {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
   .hero-title {
-    font-size: 3rem;
-    color: var(--color-foreground);
-    margin-bottom: 1rem;
-    font-weight: 300;
+    font-size: 42px;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin-bottom: 20px;
     line-height: 1.2;
+    width: 100%;
   }
 
   .hero-subtitle {
-    font-size: 1.3rem;
-    color: rgba(46, 93, 62, 0.8);
-    margin-bottom: 2rem;
-    line-height: 1.5;
+    font-size: 18px;
+    color: #2C2C2C;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    max-width: 380px;
+    text-align: center;
+  }
+
+  .hero-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 250px;
+    align-items: stretch;
   }
 
   .hero-cta {
-    display: inline-block;
-    background: #E91E63;
-    color: white;
-    padding: 1rem 2.5rem;
-    border-radius: 8px;
-    text-decoration: none;
+    padding: 14px 32px;
+    font-size: 16px;
     font-weight: 600;
-    font-size: 1.1rem;
-    transition: background 0.3s ease, transform 0.2s ease;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-block;
+    text-align: center;
   }
 
-  .hero-cta:hover {
-    background: #C2185B;
+  .hero-cta-primary {
+    background: #7FBFA5;
+    color: white;
+  }
+
+  .hero-cta-primary:hover {
+    background: #6BAC91;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(127, 191, 165, 0.3);
   }
 
-  @media (max-width: 768px) {
-    .homepage-hero {
-      padding: 2rem 1rem;
+  .hero-cta-secondary {
+    background: #2C2C2C;
+    color: white;
+  }
+
+  .hero-cta-secondary:hover {
+    background: #1C1C1C;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Right Side Image */
+  .hero-image {
+    width: 50%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    display: block;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .hero-content {
+      padding: 50px 60px;
     }
 
     .hero-title {
-      font-size: 2.2rem;
+      font-size: 38px;
     }
 
     .hero-subtitle {
-      font-size: 1.1rem;
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-container {
+      flex-direction: column;
+      min-height: auto;
+    }
+
+    .hero-content {
+      padding: 40px 30px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      white-space: normal;
+    }
+
+    .hero-subtitle {
+      font-size: 15px;
+      max-width: 100%;
+    }
+
+    .hero-buttons {
+      width: 100%;
+      max-width: 250px;
     }
 
     .hero-cta {
-      padding: 0.8rem 2rem;
-      font-size: 1rem;
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .hero-image {
+      height: 300px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-content {
+      padding: 30px 20px;
+    }
+
+    .hero-title {
+      font-size: 26px;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .hero-buttons {
+      width: 100%;
+      max-width: 200px;
     }
   }
 {% endstylesheet %}
@@ -87,31 +207,42 @@
       "type": "text",
       "id": "hero_title",
       "label": "Hero Title",
-      "default": "Welcome to Flora Queen"
+      "default": "Celebrate summer birthdays!"
     },
     {
       "type": "textarea",
       "id": "hero_subtitle",
       "label": "Hero Subtitle",
-      "default": "Beautiful flowers and plants for every occasion"
+      "default": "Send joy even on vacation. Our gift delivery makes people smile more easily"
     },
     {
-      "type": "checkbox",
-      "id": "show_cta",
-      "label": "Show Call to Action Button",
-      "default": true
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FCC3B6"
     },
     {
       "type": "text",
-      "id": "cta_text",
-      "label": "Button Text",
-      "default": "Shop Now"
+      "id": "primary_cta_text",
+      "label": "Primary Button Text",
+      "default": "Discover Gifts!"
     },
     {
       "type": "url",
-      "id": "cta_link",
-      "label": "Button Link",
-      "default": "/collections/all"
+      "id": "primary_cta_link",
+      "label": "Primary Button Link",
+      "default": "/collections"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_text",
+      "label": "Secondary Button Text",
+      "default": "Save An Event"
     }
   ],
   "presets": [

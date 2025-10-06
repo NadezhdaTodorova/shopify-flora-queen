@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #1a1a1a; margin-bottom: 30px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; font-weight: 600; }
+        .btn { background: #5c6ac4; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #4a56a8; }
+        .price-input { width: 80px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px; }
+        .multiplier-form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; font-size: 14px; color: #6b7280; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+        .simulator { background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .result { background: #10b981; color: white; padding: 10px; border-radius: 4px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Pricing Admin Panel</h1>
+
+        <!-- Pricing Rules Configuration -->
+        <div class="card">
+            <h2>Product Pricing by Country</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Country</th>
+                        <th>Size</th>
+                        <th>Local Warehouse (€)</th>
+                        <th>Central Warehouse (€)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>product_123</td>
+                        <td>Spain (ES)</td>
+                        <td>Standard</td>
+                        <td><input type="number" class="price-input" value="49.90" step="0.01"></td>
+                        <td><input type="number" class="price-input" value="54.90" step="0.01"></td>
+                        <td><button class="btn">Save</button></td>
+                    </tr>
+                    <tr>
+                        <td>product_123</td>
+                        <td>Spain (ES)</td>
+                        <td>Premium</td>
+                        <td><input type="number" class="price-input" value="69.90" step="0.01"></td>
+                        <td><input type="number" class="price-input" value="74.90" step="0.01"></td>
+                        <td><button class="btn">Save</button></td>
+                    </tr>
+                    <tr>
+                        <td>product_123</td>
+                        <td>France (FR)</td>
+                        <td>Standard</td>
+                        <td>-</td>
+                        <td><input type="number" class="price-input" value="59.90" step="0.01"></td>
+                        <td><button class="btn">Save</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- IP Multipliers Configuration -->
+        <div class="card">
+            <h2>IP-Based Price Multipliers</h2>
+            <div class="multiplier-form">
+                <div class="form-group">
+                    <label>Country</label>
+                    <select id="multiplierCountry">
+                        <option value="US">United States</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="multiplierType">
+                        <option value="percentage">Percentage</option>
+                        <option value="fixed">Fixed Amount</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Value</label>
+                    <input type="number" id="multiplierValue" placeholder="e.g., 20 or 5">
+                </div>
+                <div class="form-group">
+                    <label>Rounding</label>
+                    <select id="roundingRule">
+                        <option value="nearest_90">End in .90</option>
+                        <option value="nearest_95">End in .95</option>
+                        <option value="nearest_99">End in .99</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn" style="margin-top: 10px;" onclick="addMultiplier()">Add Multiplier</button>
+
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Rounding Rule</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="multipliersTable">
+                    <tr>
+                        <td>United States</td>
+                        <td>Percentage</td>
+                        <td>+20%</td>
+                        <td>End in .90</td>
+                        <td><button class="btn">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td>United Kingdom</td>
+                        <td>Fixed</td>
+                        <td>+€5</td>
+                        <td>End in .99</td>
+                        <td><button class="btn">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Price Simulator -->
+        <div class="card">
+            <h2>Price Simulator</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Product ID</label>
+                    <input type="text" id="simProductId" value="product_123">
+                </div>
+                <div class="form-group">
+                    <label>Delivery Country</label>
+                    <select id="simDeliveryCountry">
+                        <option value="ES">Spain</option>
+                        <option value="FR">France</option>
+                        <option value="DE">Germany</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Customer IP</label>
+                    <input type="text" id="simCustomerIP" placeholder="e.g., 1.1.1.1">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn" onclick="simulatePrice()">Calculate Price</button>
+                </div>
+            </div>
+            <div id="simulationResult" class="simulator" style="display: none;">
+                <h3>Calculation Result</h3>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function simulatePrice() {
+            const productId = document.getElementById('simProductId').value;
+            const deliveryCountry = document.getElementById('simDeliveryCountry').value;
+            const customerIP = document.getElementById('simCustomerIP').value;
+
+            try {
+                const response = await fetch('/api/calculate-price', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId,
+                        deliveryCountry,
+                        customerIP,
+                        variantId: 'variant_001'
+                    })
+                });
+
+                const data = await response.json();
+
+                document.getElementById('simulationResult').style.display = 'block';
+                document.getElementById('resultContent').innerHTML = `
+                    <p><strong>Base Price:</strong> €${data.price?.basePrice || 'N/A'}</p>
+                    <p><strong>Final Price:</strong> €${data.price?.finalPrice || 'N/A'}</p>
+                    <p><strong>Warehouse:</strong> ${data.warehouse || 'N/A'}</p>
+                    <p><strong>Customer Country:</strong> ${data.price?.customerCountry || 'N/A'}</p>
+                    <p><strong>Applied Multiplier:</strong> ${data.appliedMultiplier ? JSON.stringify(data.appliedMultiplier) : 'None'}</p>
+                `;
+            } catch (error) {
+                alert('Error calculating price: ' + error.message);
+            }
+        }
+
+        async function addMultiplier() {
+            const country = document.getElementById('multiplierCountry').value;
+            const multiplierType = document.getElementById('multiplierType').value;
+            const value = document.getElementById('multiplierValue').value;
+            const roundingRule = document.getElementById('roundingRule').value;
+
+            try {
+                const response = await fetch('/api/ip-multipliers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        country,
+                        multiplierType,
+                        value: parseFloat(value),
+                        roundingRule
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Multiplier added successfully!');
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Error adding multiplier: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

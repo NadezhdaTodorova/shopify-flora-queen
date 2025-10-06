@@ -18,9 +18,89 @@
         "cta_text": "Shop Collections",
         "cta_link": "/collections/all"
       }
+    },
+    "promotional_banners": {
+      "type": "promotional-banners",
+      "blocks": {
+        "category_1": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Flowers & Plants",
+            "category_url": "/collections/flowers"
+          }
+        },
+        "category_2": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Gourmet & Sweets",
+            "category_url": "/collections/gourmet"
+          }
+        },
+        "category_3": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "International Women's Day",
+            "category_url": "/collections/womens-day"
+          }
+        },
+        "category_4": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "All items",
+            "category_url": "/collections/all"
+          }
+        },
+        "category_5": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Love gifts",
+            "category_url": "/collections/love"
+          }
+        },
+        "category_6": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "New items",
+            "category_url": "/collections/new"
+          }
+        },
+        "category_7": {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Choose your Gift",
+            "category_url": "/collections/gifts"
+          }
+        }
+      },
+      "block_order": [
+        "category_1",
+        "category_2",
+        "category_3",
+        "category_4",
+        "category_5",
+        "category_6",
+        "category_7"
+      ],
+      "settings": {
+        "promo_text": "Here goes your product promotional offer",
+        "promo_cta": "BUY 2 GET 1",
+        "promo_url": "/collections/sale"
+      }
+    },
+    "trending_products": {
+      "type": "trending-products",
+      "settings": {
+        "section_title": "Trending now",
+        "products_limit": 8,
+        "view_all_text": "View all products",
+        "view_all_url": "/collections/all",
+        "show_sizes": false
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "promotional_banners",
+    "trending_products"
   ]
 }

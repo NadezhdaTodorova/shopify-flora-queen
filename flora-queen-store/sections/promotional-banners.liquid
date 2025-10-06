@@ -1,0 +1,320 @@
+{% comment %}
+  FloraQueen Promotional Banners Section
+  Features: Circular category icons and promotional offer banner
+{% endcomment %}
+
+<section class="promo-section" data-section-id="{{ section.id }}">
+
+  {% comment %} Category Icons Section {% endcomment %}
+  <div class="category-icons">
+    <div class="container">
+      <div class="category-icons__grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'category_item' %}
+            <a href="{{ block.settings.category_url }}" class="category-item">
+              <div class="category-item__circle">
+                {% if block.settings.category_image %}
+                  {{ block.settings.category_image | image_url: width: 120 | image_tag:
+                    class: 'category-item__image',
+                    loading: 'lazy',
+                    alt: block.settings.category_title
+                  }}
+                {% else %}
+                  <div class="category-item__placeholder">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#DDD" stroke-width="2"/>
+                    </svg>
+                  </div>
+                {% endif %}
+              </div>
+              <span class="category-item__title">{{ block.settings.category_title }}</span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% comment %} Promotional Offer Banner {% endcomment %}
+  <div class="promo-banner">
+    <div class="container">
+      <div class="promo-banner__content">
+        <p class="promo-banner__text">
+          {{ section.settings.promo_text | default: 'Here goes your product promotional offer' }}
+        </p>
+        <a href="{{ section.settings.promo_url }}" class="promo-banner__cta">
+          {{ section.settings.promo_cta | default: 'BUY 2 GET 1' }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+</section>
+
+{% stylesheet %}
+  /* Promotional Sections Common Styles */
+  .promo-section {
+    background: #FFFFFF;
+    margin-top: 20px;
+  }
+
+  /* Category Icons Section */
+  .category-icons {
+    padding: 40px 0;
+    background: #FFFFFF;
+  }
+
+  .category-icons__grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+  }
+
+  .category-item:hover {
+    transform: translateY(-5px);
+  }
+
+  .category-item__circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #F8F8F8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .category-item:hover .category-item__circle {
+    border-color: #FF6B6B;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+  }
+
+  .category-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .category-item__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .category-item__title {
+    font-size: 14px;
+    color: #2C3E50;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* Promotional Banner */
+  .promo-banner {
+    background: linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 100%);
+    padding: 20px 0;
+    margin-top: 20px;
+  }
+
+  .promo-banner__content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .promo-banner__text {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+
+  .promo-banner__cta {
+    background: #4169E1;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .promo-banner__cta:hover {
+    background: #3050C7;
+    transform: scale(1.05);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .category-icons__grid {
+      gap: 30px;
+    }
+
+    .category-item__circle {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .category-icons {
+      padding: 30px 0;
+    }
+
+    .category-icons__grid {
+      gap: 20px;
+    }
+
+    .category-item__circle {
+      width: 70px;
+      height: 70px;
+    }
+
+    .category-item__title {
+      font-size: 12px;
+    }
+
+    .promo-banner__content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .promo-banner__text {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .category-icons__grid {
+      gap: 15px;
+    }
+
+    .category-item__circle {
+      width: 60px;
+      height: 60px;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  // No JavaScript needed for this section currently
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Promotional Banners",
+  "tag": "section",
+  "class": "section-promotional",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Promotional Banner"
+    },
+    {
+      "type": "text",
+      "id": "promo_text",
+      "label": "Promotional Text",
+      "default": "Here goes your product promotional offer"
+    },
+    {
+      "type": "text",
+      "id": "promo_cta",
+      "label": "CTA Button Text",
+      "default": "BUY 2 GET 1"
+    },
+    {
+      "type": "url",
+      "id": "promo_url",
+      "label": "CTA Button Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category_item",
+      "name": "Category",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "category_image",
+          "label": "Category Image"
+        },
+        {
+          "type": "text",
+          "id": "category_title",
+          "label": "Category Title"
+        },
+        {
+          "type": "url",
+          "id": "category_url",
+          "label": "Category Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promotional Banners",
+      "blocks": [
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Flowers & Plants"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Gourmet & Sweets"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "International Women's Day"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "All items"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Love gifts"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "New items"
+          }
+        },
+        {
+          "type": "category_item",
+          "settings": {
+            "category_title": "Choose your Gift"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
